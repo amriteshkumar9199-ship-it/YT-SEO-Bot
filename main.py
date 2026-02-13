@@ -7,7 +7,7 @@ from threading import Thread
 
 # --- CONFIGURATION ---
 BOT_TOKEN = '8536803208:AAGrJzRPf1hoIApkaRHpkBAPhlbfQIJSt7k'
-GEMINI_KEY = 'AIzaSyDFPpGsEMhCfgdvzg7bR0Cc_5CTEelYUeA'
+GEMINI_KEY = 'AIzaSyBuXuXH3JUxQnLBpoVdJr5GKsFORAe9udw'
 CHANNEL_ID = "@Anokha_animation12" 
 # Aapka YouTube Channel Link
 YT_CHANNEL_URL = "https://youtube.com/@anokhaanimation12?si=6K5-y6ua8REC_mZf"
@@ -94,3 +94,4 @@ if __name__ == "__main__":
     keep_alive()
     print("🚀 Bot is LIVE with YouTube Support!")
     bot.infinity_polling()
+
