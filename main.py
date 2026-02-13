@@ -5,10 +5,13 @@ from flask import Flask
 from threading import Thread
 
 # --- CONFIGURATION ---
+# Aapka Telegram Bot Token
 BOT_TOKEN = '8536803208:AAGrJzRPf1hoIApkaRHpkBAPhlbfQIJSt7k'
-GEMINI_KEY = 'AIzaSyBuXuXH3JUxQnLBpoVdJr5GKsFORAe9udw'
+# Aapka Naya Gemini API Key (Ise update zaroori karein)
+GEMINI_KEY = 'AIzaSyDqOUWdSCoBxMXpgAmwgiJwvWzXL4KwzdE'
+# Aapka Telegram Channel
 CHANNEL_ID = "@Anokha_animation12" 
-# Aapka YouTube Channel Link yahan hai
+# Aapka YouTube Channel Link
 YT_LINK = "https://youtube.com/@anokhaanimation12?si=6K5-y6ua8REC_mZf"
 
 # Initialize Clients
@@ -25,14 +28,14 @@ def keep_alive():
     t = Thread(target=run, daemon=True)
     t.start()
 
-# Subscription Check Logic
+# LOGIC: Subscription Check
 def is_subscribed(user_id):
     try:
         status = bot.get_chat_member(CHANNEL_ID, user_id).status
         return status in ['member', 'administrator', 'creator']
     except: return False
 
-# --- KEYBOARD SETUP ---
+# UI: Buttons
 def get_verification_markup():
     markup = telebot.types.InlineKeyboardMarkup()
     btn_yt = telebot.types.InlineKeyboardButton("📺 Subscribe YouTube", url=YT_LINK)
@@ -44,34 +47,50 @@ def get_verification_markup():
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if is_subscribed(message.from_user.id):
-        bot.reply_to(message, "✅ **Welcome!** Ab koi bhi topic bhejein, main viral SEO generate karunga.")
+        bot.reply_to(message, "✅ **Access Granted!**\n\nAb koi bhi topic bhejein, main viral SEO tags aur description bana dunga.")
     else:
         bot.send_message(
             message.chat.id, 
-            f"🚫 **Access Denied!**\n\nBot use karne ke liye hamara YouTube aur Telegram join karna zaroori hai.",
+            "🚫 **Verification Required!**\n\nBot use karne ke liye pehle hamare YouTube aur Telegram channels ko join karein.",
             reply_markup=get_verification_markup()
         )
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
+    # Pehle check karein ki user ne subscribe kiya hai ya nahi
     if not is_subscribed(message.from_user.id):
         bot.reply_to(message, "❌ Pehle dono channels join karein!", reply_markup=get_verification_markup())
         return
 
-    sent_msg = bot.reply_to(message, "⏳ **Gemini AI is generating Pro SEO...**")
+    # SEO Generating Message
+    sent_msg = bot.reply_to(message, "⏳ **Gemini AI is generating Pro SEO Results...**")
+    
     try:
-        # Gemini API Call
+        # Naya SDK Logic (Model: Gemini-2.0-Flash)
         response = client.models.generate_content(
             model="gemini-2.0-flash", 
-            contents=f"Generate viral YouTube SEO Title, Description, and Tags for: {message.text}"
+            contents=f"Write high-ranking YouTube SEO tags, a viral description, and 3 catchy titles for: {message.text}"
         )
         
-        bot.edit_message_text(f"🎯 **SEO Results:**\n\n{response.text}", 
-                             chat_id=message.chat.id, message_id=sent_msg.message_id)
+        seo_text = response.text
+        # YouTube Search Link for related videos
+        search_link = f"https://www.youtube.com/results?search_query={message.text.replace(' ', '+')}"
+        
+        bot.edit_message_text(
+            f"🎯 **SEO Results for:** {message.text}\n\n{seo_text}\n\n🔗 [Related Videos]({search_link})", 
+            chat_id=message.chat.id, 
+            message_id=sent_msg.message_id,
+            parse_mode='Markdown'
+        )
     except Exception as e:
-        bot.edit_message_text(f"❌ Gemini Error: API Key check karein ya thodi der baad try karein.", message.chat.id, sent_msg.message_id)
+        # Agar API Key block ho ya error aaye
+        bot.edit_message_text(
+            f"❌ **Gemini Error:** API Key check karein ya thodi der baad try karein.", 
+            message.chat.id, 
+            sent_msg.message_id
+        )
 
 if __name__ == "__main__":
     keep_alive()
-    print("🚀 Bot is LIVE with YouTube Link!")
+    print("🚀 Bot is LIVE with All Features!")
     bot.infinity_polling()
